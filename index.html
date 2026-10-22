@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7fb">
+  <meta name="description" content="Organize seu currículo e acompanhe candidaturas com privacidade, direto no navegador.">
+  <title>Meu Assistente de Carreira</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Meu Assistente de Carreira, início">
+      <span class="brand-mark" aria-hidden="true">↗</span>
+      <span>Meu Assistente <strong>de Carreira</strong></span>
+    </a>
+    <nav class="top-actions" aria-label="Ações de dados">
+      <button class="button button-quiet" id="export-button" type="button">Exportar dados</button>
+      <button class="button button-quiet" id="import-button" type="button">Importar JSON</button>
+      <input id="import-file" type="file" accept="application/json,.json" hidden>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">SEU ESPAÇO DE ORGANIZAÇÃO</p>
+        <h1>Uma busca de carreira<br><span>mais organizada.</span></h1>
+        <p class="hero-copy">Guarde seu currículo, avalie oportunidades e acompanhe cada candidatura. Seus dados ficam neste navegador.</p>
+      </div>
+      <div class="privacy-note"><span aria-hidden="true">🔒</span><span><strong>Privado por padrão</strong><br>Não enviamos seus dados a servidores.</span></div>
+    </section>
+
+    <section class="stats" aria-label="Resumo das candidaturas">
+      <article class="stat-card"><span class="stat-label">Vagas salvas</span><strong id="stat-total">0</strong></article>
+      <article class="stat-card"><span class="stat-label">Em andamento</span><strong id="stat-active">0</strong></article>
+      <article class="stat-card"><span class="stat-label">Entrevistas</span><strong id="stat-interviews">0</strong></article>
+    </section>
+
+    <div class="workspace">
+      <section class="panel resume-panel" aria-labelledby="resume-heading">
+        <div class="panel-heading">
+          <div><p class="eyebrow">SEU PERFIL</p><h2 id="resume-heading">Meu currículo</h2></div>
+          <span class="local-badge">Salvo neste dispositivo</span>
+        </div>
+        <p class="section-intro">Preencha apenas o que quiser. Nada é inventado nem compartilhado automaticamente.</p>
+        <form id="resume-form">
+          <div class="form-grid">
+            <label>Nome
+              <input name="name" autocomplete="name" placeholder="Como prefere ser chamado?">
+            </label>
+            <label>E-mail
+              <input name="email" type="email" autocomplete="email" placeholder="voce@exemplo.com">
+            </label>
+            <label>Telefone ou LinkedIn
+              <input name="contact" placeholder="Opcional">
+            </label>
+            <label>Cidade / estado
+              <input name="location" placeholder="Ex.: Recife, PE">
+            </label>
+            <label>Cargo ou nível atual
+              <select name="level">
+                <option value="">Não informado</option>
+                <option value="Estágio">Estágio</option>
+                <option value="Júnior">Júnior</option>
+                <option value="Pleno">Pleno</option>
+                <option value="Sênior">Sênior</option>
+                <option value="Especialista">Especialista</option>
+                <option value="Liderança">Liderança</option>
+              </select>
+            </label>
+            <label>Cargo desejado
+              <input name="targetRole" placeholder="Ex.: Analista de dados">
+            </label>
+          </div>
+          <label>Resumo profissional
+            <textarea name="summary" rows="3" placeholder="Conte, com suas palavras, um resumo da sua trajetória."></textarea>
+          </label>
+          <label>Competências
+            <textarea name="skills" rows="3" placeholder="Separe por vírgulas ou linhas. Ex.: Excel, atendimento, planejamento"></textarea>
+            <span class="field-hint">Estas competências são comparadas com os requisitos informados em cada vaga.</span>
+          </label>
+          <label>Experiências profissionais
+            <textarea name="experience" rows="5" placeholder="Cargo, empresa, período e principais atividades."></textarea>
+          </label>
+          <label>Formação e cursos
+            <textarea name="education" rows="3" placeholder="Cursos, instituições ou certificações que você queira registrar."></textarea>
+          </label>
+          <div class="form-footer">
+            <span id="save-message" class="save-message" role="status">Alterações são salvas automaticamente.</span>
+            <button class="button button-primary" type="submit">Salvar currículo</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel jobs-panel" aria-labelledby="jobs-heading">
+        <div class="panel-heading">
+          <div><p class="eyebrow">SEU PAINEL</p><h2 id="jobs-heading">Vagas e candidaturas</h2></div>
+          <button class="button button-primary" id="new-job-button" type="button">＋ Nova vaga</button>
+        </div>
+        <div class="search-links">
+          <div><strong>Encontre oportunidades</strong><span>Abra buscas em sites de emprego no Brasil.</span></div>
+          <div class="search-buttons">
+            <a class="button button-outline" href="https://www.linkedin.com/jobs/search/?location=Brasil" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a class="button button-outline" href="https://br.indeed.com/jobs?q=&l=Brasil" target="_blank" rel="noopener noreferrer">Indeed</a>
+            <a class="button button-outline" href="https://www.google.com/search?q=vagas+de+emprego+Brasil" target="_blank" rel="noopener noreferrer">Buscar vagas</a>
+          </div>
+        </div>
+        <p class="match-help"><strong>Como funciona a compatibilidade:</strong> requisitos/palavras-chave valem 70%, nível 20% e localização 10%. Critérios sem dados são ignorados e os pesos restantes são redistribuídos. Requisitos são comparados por texto, sem reconhecer sinônimos; nível igual ou acima conta como compatível, um nível abaixo conta parcialmente. É apenas uma estimativa, não uma recomendação automática.</p>
+        <div class="job-toolbar">
+          <label class="filter-label" for="status-filter">Mostrar
+            <select id="status-filter">
+              <option value="all">Todas as vagas</option>
+              <option value="saved">Salvas</option>
+              <option value="applied">Candidatado</option>
+              <option value="interview">Entrevista</option>
+              <option value="offer">Proposta</option>
+              <option value="rejected">Encerrada</option>
+            </select>
+          </label>
+          <span id="job-count" class="job-count"></span>
+        </div>
+        <div id="jobs-list" class="jobs-list"></div>
+        <div id="empty-state" class="empty-state">
+          <span class="empty-icon" aria-hidden="true">✳</span>
+          <h3>Sua lista começa com uma vaga</h3>
+          <p>Adicione uma oportunidade para registrar requisitos, comparar com seu perfil e acompanhar o processo.</p>
+          <button class="button button-outline" id="empty-add-button" type="button">Adicionar primeira vaga</button>
+        </div>
+      </section>
+    </div>
+    <footer class="footer-note">Seus dados ficam no armazenamento local deste navegador. Use “Exportar dados” para manter uma cópia de segurança. Os links de busca abrem sites externos; não fazemos raspagem nem candidaturas automáticas. Os prompts são copiados somente quando você solicita; revise-os antes de colar em qualquer serviço externo.</footer>
+  </main>
+
+  <dialog id="job-dialog" class="job-dialog">
+    <form id="job-form" method="dialog">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">OPORTUNIDADE</p><h2 id="dialog-title">Adicionar vaga</h2></div>
+        <button class="icon-button" type="button" id="close-dialog" aria-label="Fechar">×</button>
+      </div>
+      <input type="hidden" name="id">
+      <div class="form-grid">
+        <label>Cargo / título da vaga *
+          <input name="title" required maxlength="120" placeholder="Ex.: Pessoa desenvolvedora front-end">
+        </label>
+        <label>Empresa
+          <input name="company" maxlength="120" placeholder="Nome da empresa">
+        </label>
+        <label>Localização
+          <input name="location" maxlength="120" placeholder="Cidade, estado ou remoto">
+        </label>
+        <label>Nível solicitado
+          <select name="level">
+            <option value="">Não informado</option>
+            <option value="Estágio">Estágio</option>
+            <option value="Júnior">Júnior</option>
+            <option value="Pleno">Pleno</option>
+            <option value="Sênior">Sênior</option>
+            <option value="Especialista">Especialista</option>
+            <option value="Liderança">Liderança</option>
+          </select>
+        </label>
+        <label>Link da vaga
+          <input name="url" type="url" maxlength="500" placeholder="https://">
+        </label>
+        <label>Status
+          <select name="status">
+            <option value="saved">Salva</option>
+            <option value="applied">Candidatado</option>
+            <option value="interview">Entrevista</option>
+            <option value="offer">Proposta</option>
+            <option value="rejected">Encerrada / não selecionado</option>
+          </select>
+        </label>
+      </div>
+      <label>Requisitos / palavras-chave
+        <textarea name="requirements" rows="4" placeholder="Separe cada requisito por vírgula ou linha. Ex.: JavaScript, comunicação, experiência com testes"></textarea>
+      </label>
+      <label>Anotações
+        <textarea name="notes" rows="3" placeholder="Prazos, contato ou próximos passos."></textarea>
+      </label>
+      <p class="dialog-required">* Campo obrigatório. Comparação de requisitos é uma estimativa baseada apenas nos dados que você informou.</p>
+      <div class="dialog-actions">
+        <button class="button button-quiet" type="button" id="cancel-dialog">Cancelar</button>
+        <button class="button button-primary" type="submit">Salvar vaga</button>
+      </div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
