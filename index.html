@@ -18,6 +18,14 @@
     <nav class="top-actions" aria-label="Ações de dados">
       <button class="button button-quiet" id="export-button" type="button">Exportar dados</button>
       <button class="button button-quiet" id="import-button" type="button">Importar JSON</button>
+      <div class="header-utilities">
+        <button class="theme-switch" id="theme-toggle" type="button" role="switch" aria-checked="false" aria-label="Alternar para tema escuro" title="Alternar para tema escuro">
+          <span class="theme-switch-icon theme-switch-sun" aria-hidden="true">☀</span>
+          <span class="theme-switch-icon theme-switch-moon" aria-hidden="true">☾</span>
+          <span class="theme-switch-thumb" aria-hidden="true"></span>
+        </button>
+        <button class="button button-quiet help-button" id="help-button" type="button" aria-label="Ver tutorial de primeiro uso" title="Ver tutorial">?</button>
+      </div>
       <input id="import-file" type="file" accept="application/json,.json" hidden>
     </nav>
   </header>
@@ -29,7 +37,7 @@
         <h1>Uma busca de carreira<br><span>mais organizada.</span></h1>
         <p class="hero-copy">Guarde seu currículo, avalie oportunidades e acompanhe cada candidatura. Seus dados ficam neste navegador.</p>
       </div>
-      <div class="privacy-note"><span aria-hidden="true">🔒</span><span><strong>Privado por padrão</strong><br>Não enviamos seus dados a servidores.</span></div>
+      <div class="privacy-note"><span aria-hidden="true">🔒</span><span><strong>Privado por padrão</strong><br>Seu currículo fica neste navegador.</span></div>
     </section>
 
     <section class="stats" aria-label="Resumo das candidaturas">
@@ -38,13 +46,47 @@
       <article class="stat-card"><span class="stat-label">Entrevistas</span><strong id="stat-interviews">0</strong></article>
     </section>
 
-    <div class="workspace">
-      <section class="panel resume-panel" aria-labelledby="resume-heading">
+    <nav class="dashboard-navigation" aria-label="Seções do aplicativo" role="tablist">
+      <button class="dashboard-tab" id="dashboard-tab-profile" type="button" role="tab" aria-controls="resume-panel" aria-selected="false" tabindex="-1" data-dashboard-view="profile">Perfil</button>
+      <button class="dashboard-tab" id="dashboard-tab-opportunities" type="button" role="tab" aria-controls="dashboard-opportunities-content" aria-selected="true" tabindex="0" data-dashboard-view="opportunities">Buscar vagas</button>
+      <button class="dashboard-tab" id="dashboard-tab-applications" type="button" role="tab" aria-controls="dashboard-applications-content" aria-selected="false" tabindex="-1" data-dashboard-view="applications">Candidaturas</button>
+    </nav>
+
+    <div class="workspace" data-dashboard-view="opportunities">
+      <section class="panel resume-panel" id="resume-panel" role="tabpanel" aria-labelledby="dashboard-tab-profile" tabindex="0">
         <div class="panel-heading">
           <div><p class="eyebrow">SEU PERFIL</p><h2 id="resume-heading">Meu currículo</h2></div>
           <span class="local-badge">Salvo neste dispositivo</span>
         </div>
         <p class="section-intro">Preencha apenas o que quiser. Nada é inventado nem compartilhado automaticamente.</p>
+        <details class="pdf-import-details">
+          <summary>Importar ou atualizar currículo</summary>
+          <section class="pdf-import" aria-labelledby="pdf-import-heading">
+          <h3 id="pdf-import-heading">Importar currículo de PDF</h3>
+          <p class="pdf-help">O arquivo é lido neste navegador e não é guardado. Limite: 10 MB.</p>
+          <div id="pdf-dropzone" class="pdf-dropzone">
+            <input id="resume-pdf-input" type="file" accept="application/pdf,.pdf" hidden>
+            <span class="pdf-icon" aria-hidden="true">PDF</span>
+            <strong>Arraste seu PDF para cá</strong>
+            <span class="pdf-help">ou selecione um arquivo no seu dispositivo</span>
+            <button class="button button-outline" id="pdf-select-button" type="button">Selecionar PDF</button>
+          </div>
+          <div id="pdf-upload-status" class="pdf-upload-status" hidden>
+            <div class="pdf-file-line"><strong id="pdf-file-name"></strong><span id="pdf-file-size"></span></div>
+            <progress id="pdf-progress" max="100" value="0" aria-label="Progresso da leitura local do PDF"></progress>
+            <span id="pdf-progress-label" class="pdf-help" aria-live="polite">Aguardando leitura</span>
+          </div>
+          <p id="pdf-error" class="pdf-error" role="alert" hidden></p>
+          <p class="pdf-privacy">PDF.js 4.10.38 (Mozilla) é carregado de um CDN público quando necessário. O PDF e o texto extraído não são enviados a esse serviço. PDFs digitalizados como imagem podem exigir OCR, que não está incluído nesta versão.</p>
+          </section>
+        </details>
+        <section id="resume-profile-view" class="resume-profile-view" aria-label="Perfil organizado"></section>
+        <div class="profile-footer-actions">
+          <button class="button button-outline" id="view-full-resume-button" type="button">Ver currículo completo</button>
+          <button class="button button-quiet button-danger" id="clear-resume-button" type="button">Limpar perfil</button>
+        </div>
+        <details class="manual-resume-details">
+          <summary>Editar currículo manualmente</summary>
         <form id="resume-form">
           <div class="form-grid">
             <label>Nome
@@ -59,7 +101,10 @@
             <label>Cidade / estado
               <input name="location" placeholder="Ex.: Recife, PE">
             </label>
-            <label>Cargo ou nível atual
+            <label>Cargo atual
+              <input name="currentRole" placeholder="Ex.: Analista de dados">
+            </label>
+            <label>Nível profissional
               <select name="level">
                 <option value="">Não informado</option>
                 <option value="Estágio">Estágio</option>
@@ -77,7 +122,7 @@
           <label>Resumo profissional
             <textarea name="summary" rows="3" placeholder="Conte, com suas palavras, um resumo da sua trajetória."></textarea>
           </label>
-          <label>Competências
+          <label>Competências profissionais
             <textarea name="skills" rows="3" placeholder="Separe por vírgulas ou linhas. Ex.: Excel, atendimento, planejamento"></textarea>
             <span class="field-hint">Estas competências são comparadas com os requisitos informados em cada vaga.</span>
           </label>
@@ -87,11 +132,32 @@
           <label>Formação e cursos
             <textarea name="education" rows="3" placeholder="Cursos, instituições ou certificações que você queira registrar."></textarea>
           </label>
+          <label>Cursos
+            <textarea name="courses" rows="3" placeholder="Cursos e certificações identificados ou informados por você."></textarea>
+          </label>
+          <label>Certificações
+            <textarea name="certifications" rows="3" placeholder="Certificações identificadas ou informadas por você."></textarea>
+          </label>
+          <label>Ferramentas
+            <textarea name="tools" rows="3" placeholder="Ferramentas e tecnologias que você informou."></textarea>
+          </label>
+          <label>Outras informações
+            <textarea name="otherInfo" rows="4" placeholder="Informações do currículo que não se encaixam com segurança nas outras seções."></textarea>
+          </label>
+          <label>Texto extraído de PDF (usado como referência nas análises)
+            <textarea name="pdfText" rows="5" placeholder="Depois de confirmar a importação, o texto extraído ficará salvo aqui neste navegador."></textarea>
+            <span class="field-hint">Texto original extraído, preservado neste navegador. A versão organizada é usada nos prompts quando disponível.</span>
+          </label>
+          <label>Currículo organizado (usado nos prompts)
+            <textarea name="pdfOrganizedText" rows="8" placeholder="A versão organizada confirmada será salva aqui neste navegador."></textarea>
+            <span class="field-hint">Revise esta versão antes de usar. Se a classificação não for segura, ela mantém o texto original sem reclassificar.</span>
+          </label>
           <div class="form-footer">
             <span id="save-message" class="save-message" role="status">Alterações são salvas automaticamente.</span>
             <button class="button button-primary" type="submit">Salvar currículo</button>
           </div>
         </form>
+        </details>
       </section>
 
       <section class="panel jobs-panel" aria-labelledby="jobs-heading">
@@ -99,20 +165,207 @@
           <div><p class="eyebrow">SEU PAINEL</p><h2 id="jobs-heading">Vagas e candidaturas</h2></div>
           <button class="button button-primary" id="new-job-button" type="button">＋ Nova vaga</button>
         </div>
+        <div id="dashboard-opportunities-content" class="dashboard-content dashboard-opportunities-content" role="tabpanel" aria-labelledby="dashboard-tab-opportunities" tabindex="0">
         <div class="search-links">
-          <div><strong>Encontre oportunidades</strong><span>Abra buscas em sites de emprego no Brasil.</span></div>
+          <div><strong>Encontre oportunidades</strong><span>Pesquisas externas abrem o portal; os resultados não são importados automaticamente.</span></div>
           <div class="search-buttons">
-            <a class="button button-outline" href="https://www.linkedin.com/jobs/search/?location=Brasil" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            <a class="button button-outline" href="https://br.indeed.com/jobs?q=&l=Brasil" target="_blank" rel="noopener noreferrer">Indeed</a>
-            <a class="button button-outline" href="https://www.google.com/search?q=vagas+de+emprego+Brasil" target="_blank" rel="noopener noreferrer">Buscar vagas</a>
+            <a class="button button-outline" id="search-link-linkedin" href="https://www.linkedin.com/jobs/search/?location=Brazil" title="Pesquisa externa no LinkedIn; resultados não são importados" aria-label="Pesquisar vagas externamente no LinkedIn" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+            <a class="button button-outline" id="search-link-indeed" href="https://br.indeed.com/jobs?l=Brasil" title="Pesquisa externa no Indeed; resultados não são importados" aria-label="Pesquisar vagas externamente no Indeed" target="_blank" rel="noopener noreferrer">Indeed ↗</a>
+            <a class="button button-outline" id="search-link-glassdoor" href="https://www.glassdoor.com/Job/jobs.htm" title="Pesquisa externa no Glassdoor; confirme a localização no portal" aria-label="Pesquisar vagas externamente no Glassdoor" target="_blank" rel="noopener noreferrer">Glassdoor ↗</a>
+            <a class="button button-outline" id="search-link-adzuna" href="https://www.adzuna.com.br/search?loc=Brasil" title="Pesquisa externa no Adzuna; resultados não são importados" aria-label="Pesquisar vagas externamente no Adzuna" target="_blank" rel="noopener noreferrer">Adzuna ↗</a>
+            <a class="button button-outline" id="search-link-google" href="https://www.google.com/search?q=vagas+de+emprego+Brasil" title="Pesquisa externa no Google; resultados não são importados" aria-label="Pesquisar vagas externamente no Google" target="_blank" rel="noopener noreferrer">Google ↗</a>
           </div>
         </div>
-        <p class="match-help"><strong>Como funciona a compatibilidade:</strong> requisitos/palavras-chave valem 70%, nível 20% e localização 10%. Critérios sem dados são ignorados e os pesos restantes são redistribuídos. Requisitos são comparados por texto, sem reconhecer sinônimos; nível igual ou acima conta como compatível, um nível abaixo conta parcialmente. É apenas uma estimativa, não uma recomendação automática.</p>
+        <details class="job-link-analysis-details">
+          <summary>Analisar vaga por link</summary>
+        <section class="job-link-analysis" aria-labelledby="job-link-analysis-title">
+          <div class="job-discovery-heading">
+            <h3 id="job-link-analysis-title">Analisar vaga por link</h3>
+            <p>A tentativa de leitura é feita diretamente pelo navegador e pode ser bloqueada pelo site. O navegador enviará uma solicitação GET ao domínio do link, sem cookies ou credenciais; o site verá essa solicitação. A descrição e seu currículo são comparados localmente e não são enviados a um serviço de análise. Você também pode colar a descrição manualmente.</p>
+          </div>
+          <form id="job-analysis-form">
+            <div class="job-analysis-url-row">
+              <label for="job-analysis-url">URL da oportunidade
+                <input id="job-analysis-url" name="url" type="url" maxlength="2000" placeholder="https://site.com/vaga">
+              </label>
+              <button class="button button-primary" id="analyze-job-link-button" type="submit">Analisar vaga</button>
+              <button class="button button-outline" id="new-job-analysis-button" type="button">Nova análise</button>
+            </div>
+            <details id="job-analysis-manual" class="job-analysis-manual">
+              <summary>Colar ou completar a descrição manualmente</summary>
+              <div class="job-analysis-fields">
+                <div class="form-grid">
+                  <label for="job-analysis-title">Cargo / título
+                    <input id="job-analysis-title" name="title" maxlength="160">
+                  </label>
+                  <label for="job-analysis-company">Empresa
+                    <input id="job-analysis-company" name="company" maxlength="160">
+                  </label>
+                  <label for="job-analysis-location">Localização
+                    <input id="job-analysis-location" name="location" maxlength="160">
+                  </label>
+                  <label for="job-analysis-modality">Modalidade
+                    <select id="job-analysis-modality" name="modality">
+                      <option value="">Não informada</option>
+                      <option value="remote">Remota</option>
+                      <option value="hybrid">Híbrida</option>
+                      <option value="onsite">Presencial</option>
+                    </select>
+                  </label>
+                  <label for="job-analysis-seniority">Senioridade
+                    <input id="job-analysis-seniority" name="seniority" maxlength="80">
+                  </label>
+                  <label for="job-analysis-salary">Faixa salarial, se informada
+                    <input id="job-analysis-salary" name="salary" maxlength="100">
+                  </label>
+                </div>
+                <label for="job-analysis-responsibilities">Responsabilidades principais
+                  <textarea id="job-analysis-responsibilities" name="responsibilities" rows="3" placeholder="Atividades descritas no anúncio"></textarea>
+                </label>
+                <label for="job-analysis-description">Descrição, responsabilidades e atividades *
+                  <textarea id="job-analysis-description" name="description" rows="7" placeholder="Cole aqui o texto da oportunidade. O texto externo será tratado como conteúdo, nunca como instruções para o aplicativo."></textarea>
+                </label>
+                <div class="form-grid">
+                  <label for="job-analysis-required">Requisitos obrigatórios
+                    <textarea id="job-analysis-required" name="requiredRequirements" rows="3" placeholder="Um por linha ou separados por vírgula"></textarea>
+                  </label>
+                  <label for="job-analysis-preferred">Requisitos desejáveis
+                    <textarea id="job-analysis-preferred" name="preferredRequirements" rows="3" placeholder="Um por linha ou separados por vírgula"></textarea>
+                  </label>
+                  <label for="job-analysis-skills">Competências profissionais exigidas
+                    <textarea id="job-analysis-skills" name="skills" rows="3"></textarea>
+                  </label>
+                  <label for="job-analysis-tools">Ferramentas e tecnologias exigidas
+                    <textarea id="job-analysis-tools" name="tools" rows="3"></textarea>
+                  </label>
+                  <label for="job-analysis-education">Formação exigida
+                    <textarea id="job-analysis-education" name="educationRequirements" rows="3"></textarea>
+                  </label>
+                  <label for="job-analysis-experience">Experiência exigida
+                    <textarea id="job-analysis-experience" name="experienceRequirements" rows="3"></textarea>
+                  </label>
+                </div>
+                <label for="job-analysis-notes">Anotações pessoais (opcional)
+                  <textarea id="job-analysis-notes" name="personalNotes" rows="2" maxlength="2000"></textarea>
+                </label>
+              </div>
+            </details>
+          </form>
+          <p id="job-analysis-status" class="job-analysis-status" role="status" aria-live="polite">Informe um link ou cole a descrição para começar. Nenhuma candidatura será enviada automaticamente.</p>
+          <div id="job-analysis-result" class="job-analysis-result" aria-live="polite" hidden></div>
+          <section id="saved-job-analyses-section" class="saved-job-analyses" aria-labelledby="saved-job-analyses-title" hidden>
+            <h4 id="saved-job-analyses-title">Análises salvas neste navegador</h4>
+            <div id="saved-job-analyses-list"></div>
+          </section>
+        </section>
+        </details>
+        <section class="job-discovery" aria-labelledby="job-discovery-heading">
+          <div class="job-discovery-heading">
+            <div>
+              <h3 id="job-discovery-heading">Buscar oportunidades</h3>
+              <p>O feed publicado é carregado automaticamente e atualizado periodicamente. A consulta ao vivo continua disponível separadamente; currículo e dados pessoais não são enviados.</p>
+            </div>
+          </div>
+          <form id="job-search-form" class="job-search-form">
+            <label for="job-search-query">Cargo ou termos de busca
+              <input id="job-search-query" type="search" maxlength="120" placeholder="Ex.: Product Designer, analista de dados">
+              <span class="field-hint">Não inclua nome, e-mail, telefone ou outros dados pessoais. Brasil é o padrão; currículo e dados pessoais não são enviados. A região é aplicada localmente quando a fonte informa localização.</span>
+            </label>
+            <div class="job-search-actions">
+              <button class="button button-primary" id="refresh-published-feed-button" type="button">Atualizar lista publicada</button>
+              <button class="button button-outline" id="update-jobs-button" type="submit">Consultar fontes ao vivo</button>
+              <button class="button button-outline" id="available-jobs-button" type="button">Mostrar resultados desta aba</button>
+            </div>
+          </form>
+          <details class="job-search-filters">
+            <summary>Filtros</summary>
+            <div class="job-search-filter-grid">
+              <label for="job-title-filter">Cargo
+                <input id="job-title-filter" type="search" placeholder="Filtrar títulos">
+              </label>
+              <label for="job-country-filter">País
+                <select id="job-country-filter">
+                  <option value="Brazil">Brasil (prioritário)</option>
+                  <option value="all">Todos os países (Brasil primeiro)</option>
+                </select>
+              </label>
+              <label for="job-location-filter">Cidade, estado ou região
+                <input id="job-location-filter" type="search" maxlength="100" placeholder="Ex.: São Paulo, SP">
+              </label>
+              <label for="job-level-filter">Senioridade
+                <select id="job-level-filter">
+                  <option value="">Todas</option>
+                  <option value="estagio">Estágio</option>
+                  <option value="junior">Júnior</option>
+                  <option value="mid">Pleno / intermediário</option>
+                  <option value="senior">Sênior</option>
+                  <option value="lead">Liderança</option>
+                </select>
+              </label>
+              <label for="job-arrangement-filter">Modalidade
+                <select id="job-arrangement-filter">
+                  <option value="">Todas</option>
+                  <option value="remote">Remota</option>
+                  <option value="hybrid">Híbrida</option>
+                  <option value="onsite">Presencial</option>
+                  <option value="unknown">Não informada</option>
+                </select>
+              </label>
+              <label class="job-remote-region-option">
+                <input id="job-include-remote-filter" type="checkbox" checked>
+                Incluir vagas remotas que aceitam candidatos no Brasil mesmo com região preenchida
+              </label>
+              <button class="button button-quiet job-location-clear" id="job-location-clear" type="button">Limpar região e voltar à busca nacional</button>
+              <p id="job-location-filter-status" class="job-location-filter-status" role="status" aria-live="polite">A região é filtrada localmente. Resultados sem informação suficiente ficam sinalizados para confirmação.</p>
+              <label for="job-date-filter">Publicado nos últimos
+                <select id="job-date-filter">
+                  <option value="">Qualquer data</option>
+                  <option value="7">7 dias</option>
+                  <option value="30">30 dias</option>
+                  <option value="90">90 dias</option>
+                </select>
+              </label>
+              <label for="job-fit-filter">Compatibilidade mínima
+                <select id="job-fit-filter">
+                  <option value="0">Sem mínimo</option>
+                  <option value="40">40%</option>
+                  <option value="60">60%</option>
+                  <option value="80">80%</option>
+                </select>
+              </label>
+              <label for="job-modality-preference">Preferência para o cálculo
+                <select id="job-modality-preference">
+                  <option value="">Sem preferência</option>
+                  <option value="remote">Remota</option>
+                  <option value="hybrid">Híbrida</option>
+                  <option value="onsite">Presencial</option>
+                </select>
+              </label>
+            </div>
+          </details>
+          <div class="job-results-area">
+          <p class="job-fit-method"><strong>Fit estimado:</strong> competências e requisitos 35%, experiência 25%, cargo e senioridade 20%, localização e modalidade 10%, formação 10%. Critérios sem evidências são ignorados e os pesos restantes são redistribuídos. Correspondências são textuais e incluem poucas equivalências explícitas; ausência no currículo não significa requisito não atendido. A pontuação não representa probabilidade de contratação.</p>
+          <div id="job-search-status" class="job-search-status" role="status" aria-live="polite">Carregando o feed publicado. A lista pode continuar sendo usada enquanto ele atualiza.</div>
+          <div id="job-source-status" class="job-source-status" aria-live="polite"></div>
+          <div class="job-results-heading"><strong id="job-results-count">0 oportunidades</strong><span id="job-last-checked"></span></div>
+          <div id="job-search-results" class="job-search-results" tabindex="0" aria-label="Resultados de oportunidades"></div>
+          <nav id="job-results-pagination" class="job-results-pagination" aria-label="Páginas das oportunidades" hidden>
+            <button class="button button-quiet" id="job-results-previous" type="button">← Anterior</button>
+            <span id="job-results-page" aria-live="polite">Página 1</span>
+            <button class="button button-quiet" id="job-results-next" type="button">Próxima →</button>
+          </nav>
+          <p class="job-source-disclosure"><strong>Feed publicado automaticamente:</strong> <a href="https://4dayweek.io/" target="_blank" rel="noopener noreferrer">4dayweek.io</a> (vagas de jornada reduzida; atualizado por GitHub Actions). A consulta ao vivo do Himalayas permanece disponível, mas não é copiada para o feed. LinkedIn, Indeed, Glassdoor e Adzuna abrem pesquisas externas; cada vaga importada mantém seu link original.</p>
+          </div>
+        </section>
+        </div>
+        <div id="dashboard-applications-content" class="dashboard-content dashboard-applications-content" role="tabpanel" aria-labelledby="dashboard-tab-applications" tabindex="0" hidden>
+        <p class="match-help"><strong>Compatibilidade das vagas cadastradas:</strong> requisitos/palavras-chave valem 70%, nível 20% e localização 10%. Critérios sem dados são ignorados e os pesos restantes são redistribuídos. Requisitos são comparados por texto, sem reconhecer sinônimos; nível igual ou acima conta como compatível, um nível abaixo conta parcialmente. É apenas uma estimativa, não uma recomendação automática.</p>
         <div class="job-toolbar">
           <label class="filter-label" for="status-filter">Mostrar
             <select id="status-filter">
               <option value="all">Todas as vagas</option>
               <option value="saved">Salvas</option>
+              <option value="planned">Candidatura planejada</option>
               <option value="applied">Candidatado</option>
               <option value="interview">Entrevista</option>
               <option value="offer">Proposta</option>
@@ -128,9 +381,10 @@
           <p>Adicione uma oportunidade para registrar requisitos, comparar com seu perfil e acompanhar o processo.</p>
           <button class="button button-outline" id="empty-add-button" type="button">Adicionar primeira vaga</button>
         </div>
+        </div>
       </section>
     </div>
-    <footer class="footer-note">Seus dados ficam no armazenamento local deste navegador. Use “Exportar dados” para manter uma cópia de segurança. Os links de busca abrem sites externos; não fazemos raspagem nem candidaturas automáticas. Os prompts são copiados somente quando você solicita; revise-os antes de colar em qualquer serviço externo.</footer>
+    <footer class="footer-note">Seu currículo, vagas, candidaturas e análises de vagas ficam no armazenamento local deste navegador. Use “Exportar dados” para manter uma cópia de segurança. Ao atualizar a busca, apenas os termos, a senioridade e o país selecionado são enviados às APIs identificadas no módulo; a região é filtrada localmente e o currículo completo não é enviado. Os links de pesquisa externa enviam os termos e a localização escolhida diretamente ao site que você abrir. Na análise por link, o navegador faz uma solicitação GET sem cookies ao domínio indicado, quando permitido; descrição e perfil são comparados localmente. Não fazemos scraping de conteúdo protegido nem candidaturas automáticas. Os prompts são copiados somente quando você solicita; revise-os antes de colar em qualquer serviço externo.</footer>
   </main>
 
   <dialog id="job-dialog" class="job-dialog">
@@ -167,6 +421,7 @@
         <label>Status
           <select name="status">
             <option value="saved">Salva</option>
+            <option value="planned">Candidatura planejada</option>
             <option value="applied">Candidatado</option>
             <option value="interview">Entrevista</option>
             <option value="offer">Proposta</option>
@@ -186,6 +441,183 @@
         <button class="button button-primary" type="submit">Salvar vaga</button>
       </div>
     </form>
+  </dialog>
+  <dialog id="job-details-dialog" class="job-dialog job-details-dialog" aria-labelledby="job-details-title">
+    <div class="dialog-heading">
+      <div><p class="eyebrow">DETALHES DA OPORTUNIDADE</p><h2 id="job-details-title">Detalhes da vaga</h2></div>
+      <button class="icon-button" type="button" id="close-job-details" aria-label="Fechar detalhes da vaga">×</button>
+    </div>
+    <div id="job-details-content" class="job-details-content"></div>
+  </dialog>
+  <dialog id="resume-review-dialog" class="job-dialog resume-review-dialog" aria-labelledby="resume-review-title">
+    <form id="resume-review-form">
+      <header class="resume-review-header">
+        <div class="dialog-heading">
+          <div><p class="eyebrow" id="resume-review-eyebrow">CURRÍCULO IMPORTADO</p><h2 id="resume-review-title">Revise seu currículo</h2></div>
+          <button class="icon-button" type="button" id="close-resume-review" aria-label="Fechar revisão">×</button>
+        </div>
+        <p class="section-intro" id="resume-review-intro">Confira os dados identificados. Somente o que foi encontrado está preenchido; nada será salvo antes da confirmação.</p>
+        <p id="resume-review-step-status" class="resume-review-step-status" aria-live="polite">Etapa 1 de 3: Informações pessoais</p>
+      </header>
+      <div class="resume-review-page" id="resume-review-page-1" data-review-page="0" aria-labelledby="resume-review-page-1-title">
+        <section class="resume-editor-section" aria-labelledby="resume-review-page-1-title">
+          <h3 id="resume-review-page-1-title" tabindex="-1">Informações pessoais</h3>
+          <div class="form-grid">
+            <label>Nome
+              <input name="name" autocomplete="name">
+            </label>
+            <label>E-mail
+              <input name="email" type="email" autocomplete="email">
+            </label>
+            <label>Telefone
+              <input name="phone" type="tel" autocomplete="tel">
+            </label>
+            <label>LinkedIn
+                <input name="linkedin" autocomplete="url" placeholder="https://www.linkedin.com/in/...">
+            </label>
+            <label>Localização
+              <input name="location" autocomplete="address-level2">
+            </label>
+            <label>Cargo atual
+              <input name="currentRole" autocomplete="organization-title">
+            </label>
+            <label>Nível profissional
+              <select name="level">
+                <option value="">Não informado</option>
+                <option value="Estágio">Estágio</option>
+                <option value="Júnior">Júnior</option>
+                <option value="Pleno">Pleno</option>
+                <option value="Sênior">Sênior</option>
+                <option value="Especialista">Especialista</option>
+                <option value="Liderança">Liderança</option>
+              </select>
+            </label>
+            <label>Cargo desejado
+              <input name="targetRole" autocomplete="organization-title">
+            </label>
+          </div>
+          <label>Resumo profissional
+            <textarea name="summary" rows="4"></textarea>
+          </label>
+        </section>
+      </div>
+      <div class="resume-review-page" id="resume-review-page-2" data-review-page="1" aria-labelledby="resume-review-page-2-title" hidden>
+        <section class="resume-editor-section">
+          <h3 id="resume-review-page-2-title" tabindex="-1">Informações acadêmicas, habilidades e competências</h3>
+          <label>Formação e instituições
+            <textarea name="education" rows="5"></textarea>
+          </label>
+          <label>Cursos
+            <textarea name="courses" rows="4"></textarea>
+          </label>
+          <label>Certificações
+            <textarea name="certifications" rows="4"></textarea>
+          </label>
+          <label>Competências profissionais
+            <textarea name="skills" rows="4"></textarea>
+          </label>
+          <section class="resume-tools-editor-section" aria-labelledby="resume-tools-editor-title">
+            <div class="editor-section-heading">
+              <h4 id="resume-tools-editor-title">Ferramentas e softwares</h4>
+              <button class="button button-outline" id="add-resume-tool" type="button">＋ Adicionar ferramenta</button>
+            </div>
+            <div id="resume-tools-editor" class="resume-tools-editor"></div>
+          </section>
+          <label>Revisar associação de proficiência
+            <textarea name="toolsReviewNotes" rows="3" placeholder="Trechos cuja associação entre ferramenta e nível precisa ser confirmada."></textarea>
+            <span class="field-hint">Quando o currículo não deixa claro a qual ferramenta o nível pertence, o trecho fica aqui para revisão manual.</span>
+          </label>
+        </section>
+      </div>
+      <div class="resume-review-page" id="resume-review-page-3" data-review-page="2" aria-labelledby="resume-review-page-3-title" hidden>
+        <section class="resume-editor-section">
+          <div class="editor-section-heading">
+            <h3 id="resume-review-page-3-title" tabindex="-1">Experiências profissionais</h3>
+            <button class="button button-outline" id="add-resume-experience" type="button">＋ Adicionar experiência</button>
+          </div>
+          <div id="resume-experiences-editor" class="resume-experiences-editor"></div>
+        </section>
+        <label>Outras informações
+          <textarea name="otherInfo" rows="4"></textarea>
+        </label>
+        <details class="original-pdf-details">
+          <summary>Ver texto original extraído do PDF</summary>
+          <pre id="resume-original-pdf-text"></pre>
+        </details>
+      </div>
+      <footer class="dialog-actions resume-review-actions">
+        <button class="button button-quiet" type="button" id="cancel-resume-review">Cancelar</button>
+        <button class="button button-outline" type="button" id="previous-resume-review-page" aria-label="Etapa anterior">← Anterior</button>
+        <button class="button button-primary" type="button" id="next-resume-review-page" aria-label="Próxima etapa">Próxima →</button>
+        <button class="button button-primary" id="save-resume-review" type="submit" hidden>Confirmar e salvar currículo</button>
+      </footer>
+    </form>
+  </dialog>
+  <dialog id="full-resume-dialog" class="job-dialog full-resume-dialog" aria-labelledby="full-resume-title">
+    <div class="dialog-heading">
+      <div><p class="eyebrow">PERFIL COMPLETO</p><h2 id="full-resume-title">Currículo completo</h2></div>
+      <button class="icon-button" type="button" id="close-full-resume" aria-label="Fechar currículo completo">×</button>
+    </div>
+    <div id="full-resume-content" class="full-resume-content"></div>
+    <div class="dialog-actions">
+      <button class="button button-outline" id="print-full-resume" type="button">Imprimir / salvar em PDF</button>
+      <button class="button button-primary" id="close-full-resume-footer" type="button">Fechar</button>
+    </div>
+  </dialog>
+  <dialog id="onboarding-dialog" class="onboarding-dialog" aria-labelledby="onboarding-title" aria-describedby="onboarding-description">
+    <div class="onboarding-shell">
+      <header class="onboarding-header">
+        <div class="onboarding-brand"><span class="onboarding-brand-mark" aria-hidden="true">↗</span><span>Meu Assistente de Carreira</span></div>
+        <button class="onboarding-skip" id="onboarding-skip" type="button">Pular tutorial</button>
+      </header>
+      <div class="onboarding-progress">
+        <span id="onboarding-step-label" aria-live="polite">1 de 5</span>
+        <div class="onboarding-progress-track" role="progressbar" aria-label="Progresso do tutorial" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" id="onboarding-progress">
+          <span id="onboarding-progress-fill"></span>
+        </div>
+        <div class="onboarding-dots" aria-hidden="true">
+          <span class="onboarding-dot is-active"></span><span class="onboarding-dot"></span><span class="onboarding-dot"></span><span class="onboarding-dot"></span><span class="onboarding-dot"></span>
+        </div>
+      </div>
+      <div class="onboarding-cards" id="onboarding-cards">
+        <article class="onboarding-card is-active" data-onboarding-step="0">
+          <div class="onboarding-illustration" aria-hidden="true"><span>↗</span><i>✦</i></div>
+          <p class="eyebrow">BEM-VINDA À SUA JORNADA</p>
+          <h1 id="onboarding-title" tabindex="-1">Sua próxima oportunidade começa aqui</h1>
+          <p id="onboarding-description">Conheça seu assistente de carreira e descubra como organizar sua busca por vagas, analisar oportunidades e acompanhar suas candidaturas em um só lugar.</p>
+        </article>
+        <article class="onboarding-card" data-onboarding-step="1" hidden>
+          <div class="onboarding-illustration onboarding-illustration-profile" aria-hidden="true"><span>▤</span><i>✓</i></div>
+          <p class="eyebrow">SEU PERFIL PROFISSIONAL</p>
+          <h2 id="onboarding-title-profile" tabindex="-1">Tudo começa com seu perfil</h2>
+          <p>Cadastre suas informações profissionais, importe seu currículo e mantenha suas experiências, formação e competências organizadas para facilitar a análise de compatibilidade com as vagas.</p>
+        </article>
+        <article class="onboarding-card" data-onboarding-step="2" hidden>
+          <div class="onboarding-illustration onboarding-illustration-jobs" aria-hidden="true"><span>⌕</span><i>✦</i></div>
+          <p class="eyebrow">BUSCA DE OPORTUNIDADES</p>
+          <h2 id="onboarding-title-opportunities" tabindex="-1">Encontre vagas alinhadas a você</h2>
+          <p>Explore oportunidades encontradas nas fontes disponíveis, utilize os filtros para refinar sua busca e priorize vagas compatíveis com seu perfil.</p>
+        </article>
+        <article class="onboarding-card" data-onboarding-step="3" hidden>
+          <div class="onboarding-illustration onboarding-illustration-fit" aria-hidden="true"><span>◎</span><i>✓</i></div>
+          <p class="eyebrow">ANÁLISE DE COMPATIBILIDADE</p>
+          <h2 id="onboarding-title-fit" tabindex="-1">Entenda seu potencial para cada vaga</h2>
+          <p>Consulte a análise de compatibilidade para identificar os requisitos atendidos, os pontos que precisam de atenção e as competências que você pode desenvolver.</p>
+          <p class="onboarding-note"><strong>Importante:</strong> a pontuação é uma estimativa baseada nas informações disponíveis no perfil e na vaga. Não representa garantia de contratação.</p>
+        </article>
+        <article class="onboarding-card" data-onboarding-step="4" hidden>
+          <div class="onboarding-illustration onboarding-illustration-tracking" aria-hidden="true"><span>✓</span><i>↗</i></div>
+          <p class="eyebrow">ACOMPANHAMENTO</p>
+          <h2 id="onboarding-title-tracking" tabindex="-1">Organize sua jornada profissional</h2>
+          <p>Registre as vagas de interesse, acompanhe o andamento das candidaturas e mantenha sua busca de emprego organizada.</p>
+        </article>
+      </div>
+      <footer class="onboarding-footer">
+        <button class="button button-outline onboarding-previous" id="onboarding-previous" type="button" aria-label="Voltar ao passo anterior" disabled>← Anterior</button>
+        <button class="button button-primary" id="onboarding-next" type="button" aria-label="Avançar para o próximo passo">Próximo →</button>
+        <button class="button button-primary" id="onboarding-start" type="button" hidden>Começar a usar</button>
+      </footer>
+    </div>
   </dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
